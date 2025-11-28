@@ -1,0 +1,1998 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Divine Mission School - Report Card System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://unpkg.com/docx@7.8.2/build/index.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #1a5276;
+            --accent: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --radius: 8px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        /* Login Styles */
+        .login-container {
+            display: flex;
+            min-height: 600px;
+        }
+
+        .login-left {
+            flex: 1;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .login-left h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+        }
+
+        .login-left p {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        .features-list {
+            list-style: none;
+        }
+
+        .features-list li {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .features-list i {
+            margin-right: 10px;
+            color: #3498db;
+        }
+
+        .login-right {
+            flex: 1;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .login-form {
+            width: 100%;
+        }
+
+        .login-form h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: var(--primary);
+            font-size: 1.8rem;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--dark);
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: var(--radius);
+            font-size: 1rem;
+            transition: border 0.3s;
+        }
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            border-color: var(--secondary);
+            outline: none;
+        }
+
+        .btn {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.3s;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-block {
+            display: block;
+            width: 100%;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success) 0%, #2ecc71 100%);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger) 0%, #c0392b 100%);
+        }
+
+        /* Dashboard Styles */
+        .dashboard {
+            display: none;
+            min-height: 100vh;
+        }
+
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 1rem 0;
+            box-shadow: var(--shadow);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo i {
+            font-size: 2rem;
+            color: #3498db;
+        }
+
+        .logo h1 {
+            font-size: 1.5rem;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 20px;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 8px 12px;
+            border-radius: var(--radius);
+            transition: background-color 0.3s;
+        }
+
+        nav a:hover, nav a.active {
+            background-color: var(--secondary);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-info i {
+            font-size: 1.2rem;
+        }
+
+        .main-content {
+            padding: 2rem 20px;
+        }
+
+        .dashboard-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s;
+            border-left: 4px solid var(--secondary);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card i {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            color: var(--secondary);
+        }
+
+        .card h3 {
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+
+        .card p {
+            color: #666;
+        }
+
+        /* Table Styles */
+        .table-container {
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background-color: var(--primary);
+            color: white;
+            font-weight: 500;
+        }
+
+        tr:hover {
+            background-color: #f9f9f9;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* Report Card Styles - Optimized for A4 */
+        .report-card {
+            background: white;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 20px;
+            width: 210mm; /* A4 width */
+            min-height: 297mm; /* A4 height */
+            margin: 0 auto;
+            box-shadow: var(--shadow);
+        }
+
+        .watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            font-size: 3rem;
+            color: rgba(0, 0, 0, 0.08);
+            z-index: 0;
+            pointer-events: none;
+            white-space: nowrap;
+            font-weight: bold;
+        }
+
+        .report-header {
+            text-align: center;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 1;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--primary);
+        }
+
+        .report-header h2 {
+            color: var(--primary);
+            margin-bottom: 5px;
+            font-size: 1.5rem;
+        }
+
+        .report-header p {
+            font-size: 0.9rem;
+            margin-bottom: 3px;
+        }
+
+        .report-header h3 {
+            font-size: 1.2rem;
+            margin-top: 8px;
+        }
+
+        .student-info {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 1;
+            font-size: 0.85rem;
+        }
+
+        .info-item {
+            margin-bottom: 5px;
+        }
+
+        .info-item strong {
+            display: inline-block;
+            width: 120px;
+        }
+
+        .subjects-table {
+            width: 100%;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 1;
+            border: 1px solid #ddd;
+            font-size: 0.8rem;
+        }
+
+        .subjects-table th {
+            background-color: var(--primary);
+            color: white;
+            padding: 8px 5px;
+            font-size: 0.75rem;
+        }
+
+        .subjects-table td, .subjects-table th {
+            border: 1px solid #ddd;
+            padding: 6px 4px;
+        }
+
+        .performance-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .attendance-section, .behavior-section {
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .attendance-section h3, .behavior-section h3, .sports-section h3 {
+            margin-bottom: 8px;
+            color: var(--primary);
+            border-bottom: 1px solid var(--secondary);
+            padding-bottom: 3px;
+            font-size: 0.9rem;
+        }
+
+        .attendance-info, .behavior-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 5px;
+            font-size: 0.8rem;
+        }
+
+        .attendance-item, .behavior-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+        }
+
+        .sports-section {
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .sports-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 5px;
+            font-size: 0.8rem;
+        }
+
+        .sports-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+        }
+
+        .remarks-section {
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .remarks-section h3 {
+            margin-bottom: 8px;
+            color: var(--primary);
+            font-size: 0.9rem;
+        }
+
+        .remarks-section p {
+            font-size: 0.8rem;
+            margin-bottom: 5px;
+            line-height: 1.3;
+        }
+
+        .signature-area {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .signature {
+            text-align: center;
+            width: 45%;
+        }
+
+        .signature-line {
+            width: 150px;
+            border-top: 1px solid #333;
+            margin: 25px auto 5px;
+        }
+
+        .signature p {
+            font-size: 0.8rem;
+        }
+
+        /* Form Sections */
+        .form-section {
+            background: white;
+            padding: 25px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 25px;
+        }
+
+        .form-section h3 {
+            margin-bottom: 20px;
+            color: var(--primary);
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--secondary);
+        }
+
+        .form-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        /* Print Styles */
+        @media print {
+            body * {
+                visibility: hidden;
+                margin: 0;
+                padding: 0;
+            }
+            .report-card, .report-card * {
+                visibility: visible;
+            }
+            .report-card {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                box-shadow: none;
+                padding: 15px;
+                margin: 0;
+                page-break-after: avoid;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .watermark {
+                opacity: 0.1;
+            }
+        }
+
+        /* Media Queries */
+        @media (max-width: 992px) {
+            .login-container {
+                flex-direction: column;
+            }
+            
+            .dashboard-cards {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            }
+            
+            .student-info {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            nav ul {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .dashboard-cards {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .signature-area {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .report-card {
+                width: 100%;
+                padding: 15px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .dashboard-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .student-info {
+                grid-template-columns: 1fr;
+            }
+            
+            .attendance-info, .behavior-grid, .sports-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            table {
+                display: block;
+                overflow-x: auto;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .form-row {
+                flex-direction: column;
+            }
+            
+            .performance-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div class="container login-container" id="loginScreen">
+        <div class="login-left">
+            <h1>Divine Mission School</h1>
+            <p>Welcome to the Divine Mission School Report Card Management System. Streamline your academic reporting with our digital solution.</p>
+            
+            <ul class="features-list">
+                <li><i class="fas fa-check-circle"></i> Automated score calculation (40% test + 60% exam)</li>
+                <li><i class="fas fa-check-circle"></i> Professional A4 report cards with watermark</li>
+                <li><i class="fas fa-check-circle"></i> Behavior, sports, and attendance tracking</li>
+                <li><i class="fas fa-check-circle"></i> Dynamic remarks based on performance</li>
+            </ul>
+        </div>
+        <div class="login-right">
+            <form class="login-form" id="loginForm">
+                <h2>Login to Your Account</h2>
+                
+                <div class="form-group">
+                    <label for="userRole">Login As</label>
+                    <select id="userRole" required>
+                        <option value="">Select Role</option>
+                        <option value="admin">Administrator</option>
+                        <option value="teacher">Teacher</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" placeholder="Enter your username" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" placeholder="Enter your password" required>
+                </div>
+                
+                <button type="submit" class="btn btn-block">Login to Dashboard</button>
+                
+                <!-- <div style="margin-top: 20px; text-align: center;">
+                    <p>Demo Accounts:</p>
+                    <p><strong>Admin:</strong> admin / admin123</p>
+                    <p><strong>Teacher:</strong> teacher / teacher123</p>
+                </div> -->
+            </form>
+        </div>
+    </div>
+
+    <!-- Dashboard -->
+    <div class="container dashboard" id="dashboard">
+        <header>
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-graduation-cap"></i>
+                    <h1>Divine Mission School</h1>
+                </div>
+                <nav>
+                    <ul>
+                        <li><a href="#" class="active" data-section="dashboard-section">Dashboard</a></li>
+                        <li><a href="#" data-section="students-section">Students</a></li>
+                        <li><a href="#" data-section="report-cards-section">Report Cards</a></li>
+                        <li><a href="#" data-section="settings-section">Settings</a></li>
+                    </ul>
+                </nav>
+                <div class="user-info">
+                    <i class="fas fa-user-circle"></i>
+                    <span id="currentUser">Admin User</span>
+                    <button class="btn btn-danger" style="margin-left: 15px;" id="logoutBtn">Logout</button>
+                </div>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <!-- Dashboard Section -->
+            <section id="dashboard-section" class="content-section">
+                <h2>Dashboard Overview</h2>
+                <div class="dashboard-cards">
+                    <div class="card">
+                        <i class="fas fa-users"></i>
+                        <h3>Total Students</h3>
+                        <p id="totalStudents">245</p>
+                    </div>
+                    <div class="card">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                        <h3>Teachers</h3>
+                        <p>18</p>
+                    </div>
+                    <div class="card">
+                        <i class="fas fa-file-alt"></i>
+                        <h3>Report Cards</h3>
+                        <p id="totalReports">156 Generated</p>
+                    </div>
+                    <div class="card">
+                        <i class="fas fa-chart-line"></i>
+                        <h3>Performance</h3>
+                        <p>85% Average</p>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <h3>Recent Students</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Student ID</th>
+                                <th>Name</th>
+                                <th>Class</th>
+                                <th>Term</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentsTableBody">
+                            <!-- Students will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Students Section -->
+            <section id="students-section" class="content-section" style="display: none;">
+                <h2>Student Management</h2>
+                
+                <div class="form-section">
+                    <h3>Add New Student</h3>
+                    <form id="studentForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="studentName">Full Name</label>
+                                <input type="text" id="studentName" placeholder="Enter student's full name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="studentCode">Student Code</label>
+                                <input type="text" id="studentCode" placeholder="e.g., DMS2023001" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="studentClass">Class</label>
+                                <select id="studentClass" required>
+                                    <option value="">Select Class</option>
+                                    <option value="Primary 1">Primary 1</option>
+                                    <option value="Primary 2">Primary 2</option>
+                                    <option value="Primary 3">Primary 3</option>
+                                    <option value="Primary 4">Primary 4</option>
+                                    <option value="Primary 5">Primary 5</option>
+                                    <option value="JSS 1">JSS 1</option>
+                                    <option value="JSS 2">JSS 2</option>
+                                    <option value="JSS 3">JSS 3</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="studentTerm">Term</label>
+                                <select id="studentTerm" required>
+                                    <option value="">Select Term</option>
+                                    <option value="First Term">First Term</option>
+                                    <option value="Second Term">Second Term</option>
+                                    <option value="Third Term">Third Term</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="studentSession">Session</label>
+                                <input type="text" id="studentSession" placeholder="e.g., 2023/2024" required>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-success">Add Student</button>
+                    </form>
+                </div>
+
+                <div class="table-container">
+                    <h3>All Students</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Student ID</th>
+                                <th>Name</th>
+                                <th>Class</th>
+                                <th>Term</th>
+                                <th>Session</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="allStudentsTableBody">
+                            <!-- Students will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Report Cards Section -->
+            <section id="report-cards-section" class="content-section" style="display: none;">
+                <h2>Report Card Generation</h2>
+                
+                <div class="form-section">
+                    <h3>Select Student and Enter Scores</h3>
+                    <form id="reportForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="reportStudent">Select Student</label>
+                                <select id="reportStudent" required>
+                                    <option value="">Select Student</option>
+                                    <!-- Students will be populated by JavaScript -->
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="totalAttendance">Total Attendance</label>
+                                <input type="number" id="totalAttendance" min="0" max="200" placeholder="Days present" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="daysPossible">Total School Days</label>
+                                <input type="number" id="daysPossible" min="1" max="200" value="180" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="resumptionDate">Resumption Date</label>
+                                <input type="date" id="resumptionDate" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="teacherRemarksInput">Teacher's Remarks</label>
+                                <textarea id="teacherRemarksInput" placeholder="Enter teacher's remarks"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="principalRemarksInput">Principal's Remarks</label>
+                                <textarea id="principalRemarksInput" placeholder="Enter principal's remarks"></textarea>
+                            </div>
+                        </div>
+                        
+                        <div id="subjectsContainer">
+                            <!-- Subjects will be added dynamically -->
+                        </div>
+                        
+                        <div class="form-row">
+                            <button type="button" class="btn" id="addSubjectBtn">Add Subject</button>
+                            <button type="submit" class="btn btn-success">Generate Report Card</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div id="reportCardPreview" style="display: none;">
+                    <h3>Report Card Preview</h3>
+                    <div class="report-card">
+                        <div class="watermark">Divine Mission School</div>
+                        
+                        <div class="report-header">
+                            <h2>DIVINE MISSION SCHOOL</h2>
+                            <p>12 Education Road, Academic City</p>
+                            <p>Phone: (+234)8164039006,08106565953| Email:Divinemissionschool@outlook.com</p>
+                            <h3>STUDENT REPORT CARD</h3>
+                        </div>
+                        
+                        <div class="student-info" id="reportStudentInfo">
+                            <!-- Student info will be populated by JavaScript -->
+                        </div>
+                        
+                        <table class="subjects-table" id="reportSubjectsTable">
+                            <thead>
+                                <tr>
+                                    <th>Subject</th>
+                                    <th>Test (40%)</th>
+                                    <th>Exam (60%)</th>
+                                    <th>Total</th>
+                                    <th>Grade</th>
+                                    <th>Remarks</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Subjects and scores will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                        
+                        <div class="performance-grid">
+                            <div class="attendance-section">
+                                <h3>ATTENDANCE RECORD</h3>
+                                <div class="attendance-info" id="attendanceInfo">
+                                    <!-- Attendance info will be populated by JavaScript -->
+                                </div>
+                            </div>
+                            
+                            <div class="behavior-section">
+                                <h3>BEHAVIORAL ASSESSMENT</h3>
+                                <div class="behavior-grid" id="behaviorAssessment">
+                                    <!-- Behavior assessment will be populated by JavaScript -->
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="sports-section">
+                            <h3>SPORTS AND CLUBS</h3>
+                            <div class="sports-grid" id="sportsAssessment">
+                                <!-- Sports assessment will be populated by JavaScript -->
+                            </div>
+                        </div>
+                        
+                        <div class="remarks-section">
+                            <h3>REMARKS</h3>
+                            <p><strong>Class Teacher's Remarks:</strong> <span id="teacherRemarks"></span></p>
+                            <p><strong>Principal's Remarks:</strong> <span id="principalRemarks"></span></p>
+                        </div>
+                        
+                        <div class="signature-area">
+                            <div class="signature">
+                                <div class="signature-line"></div>
+                                <p>Class Teacher's Signature</p>
+                            </div>
+                            <div class="signature">
+                                <div class="signature-line"></div>
+                                <p>Principal's Signature</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="action-buttons no-print" style="margin-top: 20px; display: flex; gap: 15px;">
+                        <button class="btn btn-success" id="downloadBtn"><i class="fas fa-download"></i> Download as Word</button>
+                        <button class="btn" id="printBtn"><i class="fas fa-print"></i> Print Report Card</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Settings Section -->
+            <section id="settings-section" class="content-section" style="display: none;">
+                <h2>System Settings</h2>
+                
+                <div class="form-section">
+                    <h3>User Management</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="newUsername">New Username</label>
+                            <input type="text" id="newUsername" placeholder="Enter new username">
+                        </div>
+                        <div class="form-group">
+                            <label for="newPassword">New Password</label>
+                            <input type="password" id="newPassword" placeholder="Enter new password">
+                        </div>
+                    </div>
+                    <button class="btn">Update Credentials</button>
+                </div>
+                
+                <div class="form-section">
+                    <h3>System Configuration</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="schoolName">School Name</label>
+                            <input type="text" id="schoolName" value="Divine Mission School">
+                        </div>
+                        <div class="form-group">
+                            <label for="schoolAddress">School Address</label>
+                            <input type="text" id="schoolAddress" value="12 Education Road, Academic City">
+                        </div>
+                    </div>
+                    <button class="btn">Save Settings</button>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        // Sample data
+        let students = [
+            { id: 'DMS2023001', name: 'John Adebayo', class: 'Primary 5A', term: 'First Term', session: '2023/2024' },
+            { id: 'DMS2023002', name: 'Sarah Johnson', class: 'Primary 4B', term: 'First Term', session: '2023/2024' },
+            { id: 'DMS2023003', name: 'Michael Okafor', class: 'JSS 2A', term: 'First Term', session: '2023/2024' },
+            { id: 'DMS2023004', name: 'Grace Williams', class: 'Primary 3A', term: 'First Term', session: '2023/2024' },
+            { id: 'DMS2023005', name: 'David Brown', class: 'JSS 1B', term: 'First Term', session: '2023/2024' }
+        ];
+
+        // DOM Elements
+        const loginScreen = document.getElementById('loginScreen');
+        const dashboard = document.getElementById('dashboard');
+        const loginForm = document.getElementById('loginForm');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const currentUser = document.getElementById('currentUser');
+        const studentsTableBody = document.getElementById('studentsTableBody');
+        const allStudentsTableBody = document.getElementById('allStudentsTableBody');
+        const studentForm = document.getElementById('studentForm');
+        const reportStudent = document.getElementById('reportStudent');
+        const subjectsContainer = document.getElementById('subjectsContainer');
+        const addSubjectBtn = document.getElementById('addSubjectBtn');
+        const reportForm = document.getElementById('reportForm');
+        const reportCardPreview = document.getElementById('reportCardPreview');
+        const reportStudentInfo = document.getElementById('reportStudentInfo');
+        const reportSubjectsTable = document.getElementById('reportSubjectsTable');
+        const behaviorAssessment = document.getElementById('behaviorAssessment');
+        const sportsAssessment = document.getElementById('sportsAssessment');
+        const attendanceInfo = document.getElementById('attendanceInfo');
+        const teacherRemarks = document.getElementById('teacherRemarks');
+        const principalRemarks = document.getElementById('principalRemarks');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const printBtn = document.getElementById('printBtn');
+        const totalStudents = document.getElementById('totalStudents');
+        const totalReports = document.getElementById('totalReports');
+        const teacherRemarksInput = document.getElementById('teacherRemarksInput');
+        const principalRemarksInput = document.getElementById('principalRemarksInput');
+
+        // Navigation
+        const navLinks = document.querySelectorAll('nav a');
+        const contentSections = document.querySelectorAll('.content-section');
+
+        // Report data for docx generation
+        let currentReportData = null;
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set default resumption date to current date
+            const today = new Date();
+            document.getElementById('resumptionDate').valueAsDate = today;
+            
+            // Populate students table
+            populateStudentsTable();
+            
+            // Populate all students table
+            populateAllStudentsTable();
+            
+            // Populate report student dropdown
+            populateReportStudentDropdown();
+            
+            // Add initial subject fields
+            addSubjectField();
+            
+            // Set up event listeners
+            setupEventListeners();
+        });
+
+        function setupEventListeners() {
+            // Login form submission
+            loginForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const role = document.getElementById('userRole').value;
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+                
+                // Simple authentication (in a real app, this would be server-side)
+                if ((role === 'admin' && username === 'admin' && password === 'admin123') ||
+                    (role === 'teacher' && username === 'teacher' && password === 'teacher123')) {
+                    loginScreen.style.display = 'none';
+                    dashboard.style.display = 'block';
+                    currentUser.textContent = `${role.charAt(0).toUpperCase() + role.slice(1)}: ${username}`;
+                } else {
+                    alert('Invalid credentials. ');
+                }
+            });
+            
+            // Logout button
+            logoutBtn.addEventListener('click', function() {
+                dashboard.style.display = 'none';
+                loginScreen.style.display = 'flex';
+                loginForm.reset();
+            });
+            
+            // Navigation
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetSection = this.getAttribute('data-section');
+                    
+                    // Update active nav link
+                    navLinks.forEach(l => l.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Show target section
+                    contentSections.forEach(section => {
+                        section.style.display = section.id === targetSection ? 'block' : 'none';
+                    });
+                });
+            });
+            
+            // Add student form
+            studentForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const name = document.getElementById('studentName').value;
+                const code = document.getElementById('studentCode').value;
+                const studentClass = document.getElementById('studentClass').value;
+                const term = document.getElementById('studentTerm').value;
+                const session = document.getElementById('studentSession').value;
+                
+                // Add new student
+                students.push({
+                    id: code,
+                    name: name,
+                    class: studentClass,
+                    term: term,
+                    session: session
+                });
+                
+                // Update tables
+                populateStudentsTable();
+                populateAllStudentsTable();
+                populateReportStudentDropdown();
+                
+                // Reset form
+                studentForm.reset();
+                
+                // Update student count
+                totalStudents.textContent = students.length;
+                
+                alert('Student added successfully!');
+            });
+            
+            // Add subject button
+            addSubjectBtn.addEventListener('click', addSubjectField);
+            
+            // Report form submission
+            reportForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                generateReportCard();
+            });
+            
+            // Download button - Word document generation
+            downloadBtn.addEventListener('click', function() {
+                if (currentReportData) {
+                    generateDocxReport(currentReportData);
+                } else {
+                    alert('Please generate a report card first.');
+                }
+            });
+            
+            // Print button
+            printBtn.addEventListener('click', function() {
+                window.print();
+            });
+        }
+
+        function populateStudentsTable() {
+            studentsTableBody.innerHTML = '';
+            students.slice(0, 3).forEach(student => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${student.id}</td>
+                    <td>${student.name}</td>
+                    <td>${student.class}</td>
+                    <td>${student.term}</td>
+                    <td class="action-buttons">
+                        <button class="btn" onclick="viewStudent('${student.id}')">View</button>
+                        <button class="btn btn-success" onclick="editStudent('${student.id}')">Edit</button>
+                    </td>
+                `;
+                studentsTableBody.appendChild(row);
+            });
+        }
+
+        function populateAllStudentsTable() {
+            allStudentsTableBody.innerHTML = '';
+            students.forEach(student => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${student.id}</td>
+                    <td>${student.name}</td>
+                    <td>${student.class}</td>
+                    <td>${student.term}</td>
+                    <td>${student.session}</td>
+                    <td class="action-buttons">
+                        <button class="btn" onclick="viewStudent('${student.id}')">View</button>
+                        <button class="btn btn-success" onclick="editStudent('${student.id}')">Edit</button>
+                        <button class="btn btn-danger" onclick="deleteStudent('${student.id}')">Delete</button>
+                    </td>
+                `;
+                allStudentsTableBody.appendChild(row);
+            });
+        }
+
+        function populateReportStudentDropdown() {
+            reportStudent.innerHTML = '<option value="">Select Student</option>';
+            students.forEach(student => {
+                const option = document.createElement('option');
+                option.value = student.id;
+                option.textContent = `${student.name} (${student.id}) - ${student.class}`;
+                reportStudent.appendChild(option);
+            });
+        }
+
+        function addSubjectField() {
+            const subjectDiv = document.createElement('div');
+            subjectDiv.className = 'form-row';
+            subjectDiv.innerHTML = `
+                <div class="form-group">
+                    <label>Subject Name</label>
+                    <input type="text" class="subject-name" placeholder="Enter subject name" required>
+                </div>
+                <div class="form-group">
+                    <label>Test Score (40%)</label>
+                    <input type="number" class="test-score" min="0" max="40" placeholder="0-40" required>
+                </div>
+                <div class="form-group">
+                    <label>Exam Score (60%)</label>
+                    <input type="number" class="exam-score" min="0" max="60" placeholder="0-60" required>
+                </div>
+                <div class="form-group">
+                    <label>&nbsp;</label>
+                    <button type="button" class="btn btn-danger remove-subject">Remove</button>
+                </div>
+            `;
+            subjectsContainer.appendChild(subjectDiv);
+            
+            // Add event listener to remove button
+            subjectDiv.querySelector('.remove-subject').addEventListener('click', function() {
+                if (subjectsContainer.children.length > 1) {
+                    subjectsContainer.removeChild(subjectDiv);
+                } else {
+                    alert('You need at least one subject.');
+                }
+            });
+        }
+
+        // Function to get dynamic remarks based on percentage
+        function getSubjectRemarks(percentage) {
+            if (percentage >= 90) {
+                return "Outstanding!";
+            } else if (percentage >= 80) {
+                return "Excellent!";
+            } else if (percentage >= 70) {
+                return "Very Good";
+            } else if (percentage >= 60) {
+                return "Good";
+            } else if (percentage >= 50) {
+                return "Fair";
+            } else if (percentage >= 40) {
+                return "Below Avg";
+            } else {
+                return "Poor";
+            }
+        }
+
+        // Function to get overall remarks based on average
+        function getOverallRemarks(average) {
+            if (average >= 90) {
+                return "Exceptional performance!";
+            } else if (average >= 80) {
+                return "Excellent work!";
+            } else if (average >= 70) {
+                return "Very good performance.";
+            } else if (average >= 60) {
+                return "Satisfactory performance.";
+            } else if (average >= 50) {
+                return "Average performance.";
+            } else if (average >= 40) {
+                return "Below average.";
+            } else {
+                return "Needs improvement.";
+            }
+        }
+
+        function generateReportCard() {
+            const studentId = reportStudent.value;
+            if (!studentId) {
+                alert('Please select a student.');
+                return;
+            }
+            
+            const student = students.find(s => s.id === studentId);
+            if (!student) {
+                alert('Student not found.');
+                return;
+            }
+            
+            // Get attendance data
+            const totalAttendance = parseInt(document.getElementById('totalAttendance').value) || 0;
+            const daysPossible = parseInt(document.getElementById('daysPossible').value) || 180;
+            const resumptionDate = document.getElementById('resumptionDate').value;
+            const attendancePercentage = Math.round((totalAttendance / daysPossible) * 100);
+            
+            // Get remarks
+            const customTeacherRemarks = teacherRemarksInput.value;
+            const customPrincipalRemarks = principalRemarksInput.value;
+            
+            // Get subjects and scores
+            const subjectRows = subjectsContainer.querySelectorAll('.form-row');
+            const reportSubjects = [];
+            let totalScore = 0;
+            
+            subjectRows.forEach(row => {
+                const name = row.querySelector('.subject-name').value;
+                const test = parseInt(row.querySelector('.test-score').value) || 0;
+                const exam = parseInt(row.querySelector('.exam-score').value) || 0;
+                const total = test + exam;
+                totalScore += total;
+                
+                const percentage = (total / 100) * 100;
+                let grade;
+                if (percentage >= 80) {
+                    grade = 'A';
+                } else if (percentage >= 70) {
+                    grade = 'B';
+                } else if (percentage >= 60) {
+                    grade = 'C';
+                } else if (percentage >= 50) {
+                    grade = 'D';
+                } else {
+                    grade = 'F';
+                }
+                
+                const remarks = getSubjectRemarks(percentage);
+                
+                reportSubjects.push({
+                    name, test, exam, total, grade, remarks, percentage
+                });
+            });
+            
+            const average = totalScore / reportSubjects.length;
+            let overallGrade;
+            
+            if (average >= 80) {
+                overallGrade = 'A';
+            } else if (average >= 70) {
+                overallGrade = 'B';
+            } else if (average >= 60) {
+                overallGrade = 'C';
+            } else if (average >= 50) {
+                overallGrade = 'D';
+            } else {
+                overallGrade = 'F';
+            }
+            
+            const overallRemarks = getOverallRemarks(average);
+            
+            // Update report card preview
+            reportStudentInfo.innerHTML = `
+                <div class="info-item"><strong>Name:</strong> ${student.name}</div>
+                <div class="info-item"><strong>Code:</strong> ${student.id}</div>
+                <div class="info-item"><strong>Class:</strong> ${student.class}</div>
+                <div class="info-item"><strong>Term:</strong> ${student.term}</div>
+                <div class="info-item"><strong>Session:</strong> ${student.session}</div>
+                <div class="info-item"><strong>Resumption:</strong> ${formatDate(resumptionDate)}</div>
+            `;
+            
+            let subjectsTableBody = reportSubjectsTable.querySelector('tbody');
+            subjectsTableBody.innerHTML = '';
+            
+            reportSubjects.forEach(subject => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${subject.name}</td>
+                    <td>${subject.test}</td>
+                    <td>${subject.exam}</td>
+                    <td>${subject.total}</td>
+                    <td>${subject.grade}</td>
+                    <td>${subject.remarks}</td>
+                `;
+                subjectsTableBody.appendChild(row);
+            });
+            
+            // Add total and average row
+            const totalRow = document.createElement('tr');
+            totalRow.innerHTML = `
+                <td colspan="3"><strong>Total</strong></td>
+                <td><strong>${totalScore}</strong></td>
+                <td colspan="2"></td>
+            `;
+            subjectsTableBody.appendChild(totalRow);
+            
+            const averageRow = document.createElement('tr');
+            averageRow.innerHTML = `
+                <td colspan="3"><strong>Average</strong></td>
+                <td><strong>${average.toFixed(1)}</strong></td>
+                <td><strong>${overallGrade}</strong></td>
+                <td><strong>${overallRemarks}</strong></td>
+            `;
+            subjectsTableBody.appendChild(averageRow);
+            
+            // Attendance information
+            attendanceInfo.innerHTML = `
+                <div class="attendance-item">
+                    <span>School Days:</span>
+                    <span>${daysPossible}</span>
+                </div>
+                <div class="attendance-item">
+                    <span>Present:</span>
+                    <span>${totalAttendance}</span>
+                </div>
+                <div class="attendance-item">
+                    <span>Absent:</span>
+                    <span>${daysPossible - totalAttendance}</span>
+                </div>
+                <div class="attendance-item">
+                    <span>Percentage:</span>
+                    <span>${attendancePercentage}%</span>
+                </div>
+            `;
+            
+            // Behavior assessment
+            const behaviors = [
+                { name: 'Punctuality', rating: getBehaviorRating(average) },
+                { name: 'Neatness', rating: getBehaviorRating(average) },
+                { name: 'Obedience', rating: getBehaviorRating(average) },
+                { name: 'Relationship', rating: getBehaviorRating(average) },
+                { name: 'Participation', rating: getBehaviorRating(average) },
+                { name: 'Homework', rating: getBehaviorRating(average) }
+            ];
+            
+            behaviorAssessment.innerHTML = '';
+            behaviors.forEach(behavior => {
+                const item = document.createElement('div');
+                item.className = 'behavior-item';
+                item.innerHTML = `
+                    <span>${behavior.name}</span>
+                    <span>${behavior.rating}</span>
+                `;
+                behaviorAssessment.appendChild(item);
+            });
+            
+            // Sports assessment
+            const sports = [
+                { name: 'Sports', rating: getSportsRating(average) },
+                { name: 'Football', rating: getSportsRating(average) },
+                { name: 'Debate', rating: getSportsRating(average) },
+                { name: 'Music', rating: getSportsRating(average) }
+            ];
+            
+            sportsAssessment.innerHTML = '';
+            sports.forEach(sport => {
+                const item = document.createElement('div');
+                item.className = 'sports-item';
+                item.innerHTML = `
+                    <span>${sport.name}</span>
+                    <span>${sport.rating}</span>
+                `;
+                sportsAssessment.appendChild(item);
+            });
+            
+            // Remarks
+            teacherRemarks.textContent = customTeacherRemarks || `${student.name} ${overallRemarks.toLowerCase()} ${getAttendanceRemark(attendancePercentage)}`;
+            principalRemarks.textContent = customPrincipalRemarks || `${student.name} has shown ${getPrincipalRemark(average)} performance this term. ${getAttendanceRemark(attendancePercentage, true)}`;
+            
+            // Store report data for docx generation
+            currentReportData = {
+                student,
+                subjects: reportSubjects,
+                totalScore,
+                average,
+                overallGrade,
+                overallRemarks,
+                behaviors,
+                sports,
+                teacherRemarks: teacherRemarks.textContent,
+                principalRemarks: principalRemarks.textContent,
+                attendance: {
+                    total: totalAttendance,
+                    possible: daysPossible,
+                    percentage: attendancePercentage,
+                    resumptionDate: resumptionDate
+                }
+            };
+            
+            // Show report card
+            reportCardPreview.style.display = 'block';
+            
+            // Update report count
+            const currentCount = parseInt(totalReports.textContent);
+            totalReports.textContent = `${currentCount + 1} Generated`;
+            
+            // Scroll to report card
+            reportCardPreview.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Helper functions for dynamic content
+        function getBehaviorRating(average) {
+            if (average >= 80) return 'Excellent';
+            if (average >= 70) return 'Very Good';
+            if (average >= 60) return 'Good';
+            if (average >= 50) return 'Satisfactory';
+            return 'Needs Improve';
+        }
+
+        function getSportsRating(average) {
+            if (average >= 80) return 'Active';
+            if (average >= 60) return 'Participating';
+            return 'Limited';
+        }
+
+        function getAttendanceRemark(percentage, forPrincipal = false) {
+            if (percentage >= 95) {
+                return forPrincipal ? "Excellent attendance." : "excellent attendance.";
+            } else if (percentage >= 90) {
+                return forPrincipal ? "Very good attendance." : "very good attendance.";
+            } else if (percentage >= 80) {
+                return forPrincipal ? "Satisfactory attendance." : "satisfactory attendance.";
+            } else if (percentage >= 70) {
+                return forPrincipal ? "Needs improvement." : "needs to improve attendance.";
+            } else {
+                return forPrincipal ? "Poor attendance." : "poor attendance.";
+            }
+        }
+
+        function getPrincipalRemark(average) {
+            if (average >= 90) return "exceptional";
+            if (average >= 80) return "commendable";
+            if (average >= 70) return "satisfactory";
+            if (average >= 60) return "adequate";
+            return "concerning";
+        }
+
+        function formatDate(dateString) {
+            const options = { year: 'numeric', month: 'short', day: 'numeric' };
+            return new Date(dateString).toLocaleDateString(undefined, options);
+        }
+
+        // Generate Word document using docx.js
+        function generateDocxReport(reportData) {
+            const { docx } = window;
+            
+            // Create document
+            const doc = new docx.Document({
+                sections: [{
+                    properties: {},
+                    children: [
+                        // School Header
+                        new docx.Paragraph({
+                            children: [
+                                new docx.TextRun({
+                                    text: "DIVINE MISSION SCHOOL",
+                                    bold: true,
+                                    size: 28,
+                                    font: "Arial"
+                                })
+                            ],
+                            alignment: docx.AlignmentType.CENTER,
+                            spacing: { after: 300 }
+                        }),
+                        
+                        new docx.Paragraph({
+                            children: [
+                                new docx.TextRun({
+                                    text: "12 Education Road, Academic City",
+                                    size: 20,
+                                    font: "Arial"
+                                })
+                            ],
+                            alignment: docx.AlignmentType.CENTER,
+                            spacing: { after: 150 }
+                        }),
+                        
+                        new docx.Paragraph({
+                            children: [
+                                new docx.TextRun({
+                                    text: "Phone: (123) 456-7890 | Email: info@divinemission.edu",
+                                    size: 18,
+                                    font: "Arial"
+                                })
+                            ],
+                            alignment: docx.AlignmentType.CENTER,
+                            spacing: { after: 300 }
+                        }),
+                        
+                        // Report Card Title
+                        new docx.Paragraph({
+                            children: [
+                                new docx.TextRun({
+                                    text: "STUDENT REPORT CARD",
+                                    bold: true,
+                                    size: 24,
+                                    font: "Arial"
+                                })
+                            ],
+                            alignment: docx.AlignmentType.CENTER,
+                            spacing: { after: 400 }
+                        }),
+                        
+                        // Student Information
+                        new docx.Paragraph({
+                            children: [
+                                new docx.TextRun({
+                                    text: `Student Name: ${reportData.student.name}`,
+                                    size: 20,
+                                    font: "Arial"
+                                })
+                            ],
+                            spacing: { after: 150 }
+                        }),
+                        
+                        new docx.Paragraph({
+                            children: [
+                                new docx.TextRun({
+                                    text: `Student Code: ${reportData.student.id}`,
+                                    size: 20,
+                                    font: "Arial"
+                                })
+                            ],
+                            spacing: { after: 150 }
+                        }),
+                        
+                        new docx.Paragraph({
+                            children: [
+                                new docx.TextRun({
+                                    text: `Class: ${reportData.student.class}`,
+                                    size: 20,
+                                    font: "Arial"
+                                })
+                            ],
+                            spacing: { after: 150 }
+                        }),
+                        
+                        new docx.Paragraph({
+                            children: [
+                                new docx.TextRun({
+                                    text: `Term: ${reportData.student.term}`,
+                                    size: 20,
+                                    font: "Arial"
+                                })
+                            ],
+                            spacing: { after: 150 }
+                        }),
+                        
+                        new docx.Paragraph({
+                            children: [
+                                new docx.TextRun({
+                                    text: `Session: ${reportData.student.session}`,
+                                    size: 20,
+                                    font: "Arial"
+                                })
+                            ],
+                            spacing: { after: 150 }
+                        }),
+                        
+                        new docx.Paragraph({
+                            children: [
+                                new docx.TextRun({
+                                    text: `Resumption Date: ${formatDate(reportData.attendance.resumptionDate)}`,
+                                    size: 20,
+                                    font: "Arial"
+                                })
+                            ],
+                            spacing: { after: 400 }
+                        }),
+                        
+                        // Academic Performance Table
+                        new docx.Paragraph({
+                            children: [
+                                new docx.TextRun({
+                                    text: "ACADEMIC PERFORMANCE",
+                                    bold: true,
+                                    size: 22,
+                                    font: "Arial"
+                                })
+                            ],
+                            spacing: { after: 200 }
+                        }),
+                        
+                        // Create table for subjects
+                        new docx.Table({
+                            width: {
+                                size: 100,
+                                type: docx.WidthType.PERCENTAGE,
+                            },
+                            borders: docx.TableBorders.ALL,
+                            columnWidths: [2000, 1200, 1200, 1200, 1200, 1800],
+                            rows: [
+                                // Table Header
+                                new docx.TableRow({
+                                    children: [
+                                        new docx.TableCell({
+                                            children: [new docx.Paragraph({ 
+                                                children: [new docx.TextRun({ text: "Subject", bold: true })] 
+                                            })],
+                                            shading: {
+                                                fill: "2C3E50",
+                                            },
+                                        }),
+                                        new docx.TableCell({
+                                            children: [new docx.Paragraph({ 
+                                                children: [new docx.TextRun({ text: "Test (40%)", bold: true })] 
+                                            })],
+                                            shading: {
+                                                fill: "2C3E50",
+                                            },
+                                        }),
+                                        new docx.TableCell({
+                                            children: [new docx.Paragraph({ 
+                                                children: [new docx.TextRun({ text: "Exam (60%)", bold: true })] 
+                                            })],
+                                            shading: {
+                                                fill: "2C3E50",
+                                            },
+                                        }),
+                                        new docx.TableCell({
+                                            children: [new docx.Paragraph({ 
+                                                children: [new docx.TextRun({ text: "Total", bold: true })] 
+                                            })],
+                                            shading: {
+                                                fill: "2C3E50",
+                                            },
+                                        }),
+                                        new docx.TableCell({
+                                            children: [new docx.Paragraph({ 
+                                                children: [new docx.TextRun({ text: "Grade", bold: true })] 
+                                            })],
+                                            shading: {
+                                                fill: "2C3E50",
+                                            },
+                                        }),
+                                        new docx.TableCell({
+                                            children: [new docx.Paragraph({ 
+                                                children: [new docx.TextRun({ text: "Remarks", bold: true })] 
+                                            })],
+                                            shading: {
+                                                fill: "2C3E50",
+                                            },
+                                        }),
+                                    ],
+                                }),
+                                // Subject Rows
+                                ...reportData.subjects.map(subject => 
+                                    new docx.TableRow({
+                                        children: [
+                                            new docx.TableCell({
+                                                children: [new docx.Paragraph({ text: subject.name })]
+                                            }),
+                                            new docx.TableCell({
+                                                children: [new docx.Paragraph({ text: subject.test.toString() })]
+                                            }),
+                                            new docx.TableCell({
+                                                children: [new docx.Paragraph({ text: subject.exam.toString() })]
+                                            }),
+                                            new docx.TableCell({
+                                                children: [new docx.Paragraph({ text: subject.total.toString() })]
+                                            }),
+                                            new docx.TableCell({
+                                                children: [new docx.Paragraph({ text: subject.grade })]
+                                            }),
+                                            new docx.TableCell({
+                                                children: [new docx.Paragraph({ text: subject.remarks })]
+                                            }),
+                                        ],
+                                    })
+                                ),
+                                // Total Row
+                                new docx.TableRow({
+                                    children: [
+                                        new docx.TableCell({
+                                            children: [new docx.Paragraph({ 
+                                                children: [new docx.TextRun({ text: "Total", bold: true })] 
+                                            })],
+                                            columnSpan: 3
+                                        }),
+                                        new docx.TableCell({
+                                            children: [new docx.Paragraph({ 
+                                                children: [new docx.TextRun({ text: reportData.totalScore.toString(), bold: true })] 
+                                            })]
+                                        }),
+                                        new docx.TableCell({
+                                            children: [new docx.Paragraph({ text: "" })],
+                                            columnSpan: 2
+                                        }),
+                                    ],
+                                }),
+                                // Average Row
+                                new docx.TableRow({
+                                    children: [
+                                        new docx.TableCell({
+                                            children: [new docx.Paragraph({ 
+                                                children: [new docx.TextRun({ text: "Average", bold: true })] 
+                                            })],
+                                            columnSpan: 3
+                                        }),
+                                        new docx.TableCell({
+                                            children: [new docx.Paragraph({ 
+                                                children: [new docx.TextRun({ text: reportData.average.toFixed(1), bold: true })] 
+                                            })]
+                                        }),
+                                        new docx.TableCell({
+                                            children: [new docx.Paragraph({ 
+                                                children: [new docx.TextRun({ text: reportData.overallGrade, bold: true })] 
+                                            })]
+                                        }),
+                                        new docx.TableCell({
+                                            children: [new docx.Paragraph({ 
+                                                children: [new docx.TextRun({ text: reportData.overallRemarks, bold: true })] 
+                                            })]
+                                        }),
+                                    ],
+                                }),
+                            ],
+                        }),
+                        
+                        // Attendance Information
+                        new docx.Paragraph({
+                            children: [
+                                new docx.TextRun({
+                                    text: "ATTENDANCE RECORD",
+                                    bold: true,
+                                    size: 22,
+                                    font: "Arial"
+                                })
+                            ],
+                            spacing: { before: 400, after: 200 }
+                        }),
+                        
+                        new docx.Paragraph({
+                            children: [
+                                new docx.TextRun({
+                                    text: `Total School Days: ${reportData.attendance.possible} | Days Present: ${reportData.attendance.total} | Days Absent: ${reportData.attendance.possible - reportData.attendance.total} | Attendance: ${reportData.attendance.percentage}%`,
+                                    size: 18,
+                                    font: "Arial"
+                                })
+                            ],
+                            spacing: { after: 300 }
+                        }),
+                        
+                        // Behavioral Assessment
+                        new docx.Paragraph({
+                            children: [
+                                new docx.TextRun({
+                                    text: "BEHAVIORAL ASSESSMENT",
+                                    bold: true,
+                                    size: 22,
+                                    font: "Arial"
+                                })
+                            ],
+                            spacing: { after: 200 }
+                        }),
+                        
+                        new docx.Paragraph({
+                            children: [
+                                new docx.TextRun({
+                                    text: reportData.behaviors.map(b => `${b.name}: ${b.rating}`).join(' | '),
+                                    size: 18,
+                                    font: "Arial"
+                                })
+                            ],
+                            spacing: { after: 300 }
+                        }),
+                        
+                        // Sports and Clubs
+                        new docx.Paragraph({
+                            children: [
+                                new docx.TextRun({
+                                    text: "SPORTS AND CLUBS",
+                                    bold: true,
+                                    size: 22,
+                                    font: "Arial"
+                                })
+                            ],
+                            spacing: { after: 200 }
+                        }),
+                        
+                        new docx.Paragraph({
+                            children: [
+                                new docx.TextRun({
+                                    text: reportData.sports.map(s => `${s.name}: ${s.rating}`).join(' | '),
+                                    size: 18,
+                                    font: "Arial"
+                                })
+                            ],
+                            spacing: { after: 400 }
+                        }),
+                        
+                        // Remarks
+                        new docx.Paragraph({
+                            children: [
+                                new docx.TextRun({
+                                    text: "REMARKS",
+                                    bold: true,
+                                    size: 22,
+                                    font: "Arial"
+                                })
+                            ],
+                            spacing: { after: 200 }
+                        }),
+                        
+                        new docx.Paragraph({
+                            children: [
+                                new docx.TextRun({
+                                    text: `Class Teacher's Remarks: ${reportData.teacherRemarks}`,
+                                    size: 18,
+                                    font: "Arial"
+                                })
+                            ],
+                            spacing: { after: 200 }
+                        }),
+                        
+                        new docx.Paragraph({
+                            children: [
+                                new docx.TextRun({
+                                    text: `Principal's Remarks: ${reportData.principalRemarks}`,
+                                    size: 18,
+                                    font: "Arial"
+                                })
+                            ],
+                            spacing: { after: 400 }
+                        }),
+                        
+                        // Signatures
+                        new docx.Paragraph({
+                            children: [
+                                new docx.TextRun({
+                                    text: "_________________________",
+                                    size: 18,
+                                    font: "Arial"
+                                })
+                            ],
+                            alignment: docx.AlignmentType.LEFT,
+                            spacing: { before: 600 }
+                        }),
+                        
+                        new docx.Paragraph({
+                            children: [
+                                new docx.TextRun({
+                                    text: "Class Teacher's Signature",
+                                    size: 18,
+                                    font: "Arial"
+                                })
+                            ],
+                            alignment: docx.AlignmentType.LEFT,
+                            spacing: { after: 300 }
+                        }),
+                        
+                        new docx.Paragraph({
+                            children: [
+                                new docx.TextRun({
+                                    text: "_________________________",
+                                    size: 18,
+                                    font: "Arial"
+                                })
+                            ],
+                            alignment: docx.AlignmentType.RIGHT
+                        }),
+                        
+                        new docx.Paragraph({
+                            children: [
+                                new docx.TextRun({
+                                    text: "Principal's Signature",
+                                    size: 18,
+                                    font: "Arial"
+                                })
+                            ],
+                            alignment: docx.AlignmentType.RIGHT
+                        }),
+                    ]
+                }]
+            });
+            
+            // Generate and download the document
+            docx.Packer.toBlob(doc).then(blob => {
+                saveAs(blob, `Report_Card_${reportData.student.name.replace(/\s+/g, '_')}.docx`);
+            });
+        }
+
+        // Student management functions
+        function viewStudent(id) {
+            const student = students.find(s => s.id === id);
+            alert(`Student Details:\n\nName: ${student.name}\nID: ${student.id}\nClass: ${student.class}\nTerm: ${student.term}\nSession: ${student.session}`);
+        }
+
+        function editStudent(id) {
+            const student = students.find(s => s.id === id);
+            document.getElementById('studentName').value = student.name;
+            document.getElementById('studentCode').value = student.id;
+            document.getElementById('studentClass').value = student.class;
+            document.getElementById('studentTerm').value = student.term;
+            document.getElementById('studentSession').value = student.session;
+            
+            // Remove student from list
+            students = students.filter(s => s.id !== id);
+            
+            // Update tables
+            populateStudentsTable();
+            populateAllStudentsTable();
+            populateReportStudentDropdown();
+            
+            alert('Student data loaded for editing. Update the form and click "Add Student" to save changes.');
+        }
+
+        function deleteStudent(id) {
+            if (confirm('Are you sure you want to delete this student?')) {
+                students = students.filter(s => s.id !== id);
+                populateStudentsTable();
+                populateAllStudentsTable();
+                populateReportStudentDropdown();
+                totalStudents.textContent = students.length;
+                alert('Student deleted successfully!');
+            }
+        }
+    </script>
+</body>
+</html>
